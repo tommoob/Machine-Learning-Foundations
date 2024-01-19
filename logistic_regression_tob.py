@@ -9,9 +9,10 @@ class LogisticRegressionModel:
     def __init__(self, ws=[0.01, 0.01], intercept=0.0):
         
         self.coefficient = np.array(ws).reshape(1, -1).T
+        # (10, -1)
         self.intercept = intercept
         
-    def logistic_fit(self, xs, ys, nepochs=10, learn_rate=0.01):
+    def logistic_fit(self, xs, ys, nepochs=10, learn_rate=0.001):
         
         z, m = 0, ys.size
         w, b = self.coefficient, self.intercept
@@ -19,7 +20,7 @@ class LogisticRegressionModel:
             z = np.dot(w.T, xs) + b
             a = 1.0 / (1.0 + np.exp(-z))
             
-            js = -((ys * np.log(a + (1 - ys) * np.log(1 - a))))
+            js = -((ys * np.log(a) + (1 - ys) * np.log(1 - a)))
             j = js.sum() / m
             
             dl_db = (a - ys)
@@ -29,7 +30,7 @@ class LogisticRegressionModel:
             w -= learn_rate * dj_dw
             b -= learn_rate * dj_db
             
-            print(f"\nepoch: {epoch}, loss: {j}, b: {b}, w: {w}\n")
+            # print(f"\nepoch: {epoch}, loss: {j}, b: {b}\n")
         self.coefficient, self.intercept = w, b
         return w, b
 
@@ -74,8 +75,12 @@ class LogisticRegressionModel:
     
  
     
-    def plot_logistic_regression(self, xs, x_0s, x_1s):
-        w, b = self.coefficient, self.intercept
+    def plot_logistic_regression(self, xs, x_0s, x_1s, w=-100, b=-100):
+        if w == -100:
+            w = self.coefficient
+        elif b == -100:
+            b = self.intercept
+        
         z = 0.5
         x_start, x_end = xs[0, :].min(), xs[0, :].max()
         slope, intercept = - w[0, 0] / w[1, 0], (z - b) / w[1, 0]
@@ -89,6 +94,17 @@ class LogisticRegressionModel:
         plt.scatter(x_1s[:, 0], x_1s[:, 1], color='b')
         plt.plot(x_coords, y_coords, color="purple")
         plt.show()
+    
+    def predict_proba(self, x, w, b):
+
+
+        # Compute z = wx + b
+        Z = np.dot(w.T, x) + b
+
+        # Compute activation (or yhat)
+        A = 1.0 / (1.0 + np.exp(-Z))
+        return A
+        
         
     
 
