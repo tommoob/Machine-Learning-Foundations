@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 
 class LogisticRegressionModel:
     
-    def __init__(self, ws=[0.01, 0.01], intercept=0.0):
+    def __init__(self, w=[0.01, 0.01], b=0.0):
         
-        self.coefficient = np.array(ws).reshape(1, -1).T
+        self.coefficient = np.array(w).reshape(10, -1).T
         # (10, -1)
-        self.intercept = intercept
+        self.intercept = np.array(b).reshape(1, -1).T
         
     def logistic_fit(self, xs, ys, nepochs=10, learn_rate=0.001):
         

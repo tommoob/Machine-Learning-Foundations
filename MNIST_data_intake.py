@@ -45,7 +45,10 @@ class MNISTDataInjest:
         return 
         
 
-    def select_for_integer(self, lab_arr, target_int):
-        
-        lab_arr = np.where(lab_arr == float(target_int), 1, 0)
-        return lab_arr
+    def one_hot_labels(self, lab_arr):
+        res_array = np.zeros((10, lab_arr.size))
+        for ix in range(10):
+            lab_arr1 = np.where(lab_arr == float(ix), 1, 0)
+            res_array[ix] = lab_arr1
+        print(res_array)
+        return res_array

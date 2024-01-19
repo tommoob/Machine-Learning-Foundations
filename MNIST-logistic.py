@@ -14,7 +14,7 @@ test_image_string, test_label_string = "t10k-images-idx3-ubyte", 't10k-labels-id
 train_image_string, train_label_string = 'train-images-idx3-ubyte', 'train-labels-idx1-ubyte'
 
 def main():
-    load_parameters = True
+    load_parameters = False
     
     ls, ws, bs, probs = os.listdir(path_dir), defaultdict(int), defaultdict(int), defaultdict(int)
     for dir in ls:
@@ -28,51 +28,42 @@ def main():
         imgs[key] = np.reshape(imgs[key], (imgs[key].shape[0], matr_size))
     # train logistic regressions
     if not load_parameters:
-        ws, bs = train_logistic_models(ws, bs, learn_rate=0.001, nepochs=100)
+        w, b = train_logistic_models(learn_rate=0.001, nepochs=500)
         
     else:
-        ws = np.load(os.path.join(path_dir, "ws.json.npz"))
-        bs = np.load(os.path.join(path_dir, "bs.json.npz"))
+        w = np.loadtxt(os.path.join(path_dir, "ws.json.npz"), dtype=int)
+        b = np.loadtxt(os.path.join(path_dir, "bs.json.npz"), dtype=int)
 
-    for jx in range(10):
-        probs[str(jx)] = logistic_regression_model.predict_proba(imgs[test_image_string].T, ws[str(jx)], bs[str(jx)])
+    probs = logistic_regression_model.predict_proba(imgs[test_image_string].T, w, b)
         
-    for ex in range(labs[test_label_string].size):
-        target, high_cat, high_prob = find_highest_prob(labs, probs, ex)
-        if not high_cat==[]:
-            print(f"For image {ex}, the target was {target}, while the highest probability was for {high_cat} with a probability of {high_prob}")
+    res = find_highest_prob(probs)
       
       
-def train_logistic_models(ws, bs, learn_rate=0.01, nepochs=100):
-    for ix in range(10):
-        print(f"training the {ix} model")
-        spec_labs = MNIST.select_for_integer(labs[train_label_string], ix)
-        ws[str(ix)], bs[str(ix)] = logistic_regression_model.logistic_fit(imgs[train_image_string].T, spec_labs, nepochs=nepochs, learn_rate=learn_rate)
+def train_logistic_models(learn_rate=0.001, nepochs=100):
+    spec_labs = MNIST.one_hot_labels(labs[train_label_string])
+    w, b = logistic_regression_model.logistic_fit(imgs[train_image_string].T, spec_labs, nepochs=nepochs, learn_rate=learn_rate)
 
-    np.savez(os.path.join(path_dir, "ws.json"), **ws)
-    np.savez(os.path.join(path_dir, "bs.json"), **bs)
-    return ws, bs
+    np.savetxt(os.path.join(path_dir, "ws.json"), w, fmt='%d')
+    np.savetxt(os.path.join(path_dir, "bs.json"), b, fmt='%d')
+    return w, b
       
       
-def find_highest_prob(labs, probs, ex):
-    target, high_prob, high_cat = labs[test_label_string][ex], [0.001], []
-    for key in probs:
-        if probs[key][0][ex] > max(high_prob) and not key=="0":
-            high_prob.append(probs[key][0][ex])
-            high_cat.append(key) 
-        """
-        if probs[key][0][ex] > 0.01:
-            high_prob.append(probs[key][0][ex])
-            high_cat.append(key) 
-        """
-    return target, high_cat, high_prob
+def find_highest_prob(probs):
+    res = np.zeros((2, probs.shape[1]))
+    for ix in range(probs.shape[1]):
+        target = labs[test_label_string][ix]
+        res[0, ix] = np.max(probs[:, ix])
+        res[1, ix] = np.where(probs[:, ix]==np.max(probs[:, ix]))[0][0]
+        print(f"For image {ix}, the target was {target}, but {res[1, ix]} was predicted with a probability of {res[0, ix]}")
+
+    return res
             
 if __name__ == "__main__":
     imgs, labs = defaultdict(partial(np.ndarray, 0)), defaultdict(partial(np.ndarray, 0))
     path_dir = "/home/thomasobrien/dev/src/Machine-Learning-Foundations/data/MNIST_data" 
-    byte_num, matr_size = 1, 784
+    byte_num, matr_size, cat_num = 1, 784, 10
     MNIST = MNISTDataInjest(imgs, labs)
-    logistic_regression_model = LogisticRegressionModel(np.random.randn(matr_size) * np.sqrt(2/matr_size))
+    logistic_regression_model = LogisticRegressionModel(w=np.random.randn(cat_num, matr_size) * np.sqrt(2/(matr_size)), b=np.random.randn(cat_num) * np.sqrt(2/cat_num))
     main()
     
     
