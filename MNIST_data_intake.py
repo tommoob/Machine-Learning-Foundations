@@ -23,8 +23,6 @@ class MNISTDataInjest:
             count += 1
         # print(type(fileContents), fileContent)
         self.labels[dir] = res_arr[7:]
-        print(self.labels[dir])
-        print(len(self.labels[dir]))
         f.close()
 
 
@@ -50,5 +48,4 @@ class MNISTDataInjest:
         for ix in range(10):
             lab_arr1 = np.where(lab_arr == float(ix), 1, 0)
             res_array[ix] = lab_arr1
-        print(res_array)
         return res_array
