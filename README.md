@@ -3,7 +3,7 @@ This repository is made up of various foundational machine learning projects des
 Logistic regression:
 This uses logistic_regression_tob.py and runs in the jupiter notebook: logistic_notebook.py
 
-# TODO currently broken by later code
+TODO currently broken by later code
 
 Number classifier: 
 This runs from MNIST-logistic.py, using MNIST_data_intake.py and logistic_regression_tob.py.
