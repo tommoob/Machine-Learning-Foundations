@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 class LogisticRegressionModel:
     
-    def __init__(self, w=[0.01, 0.01], b=0.0):
+    def __init__(self, w=[0.01, 0.01], b=0.0, var_size=10):
         
-        self.coefficient = np.array(w).reshape(10, -1).T
+        self.coefficient = np.array(w).reshape(var_size, -1).T
         # (10, -1)
         self.intercept = np.array(b).reshape(1, -1).T
         
@@ -78,7 +78,7 @@ class LogisticRegressionModel:
     def plot_logistic_regression(self, xs, x_0s, x_1s, w=-100, b=-100):
         if w == -100:
             w = self.coefficient
-        elif b == -100:
+        if b == -100:
             b = self.intercept
         
         z = 0.5
