@@ -12,23 +12,23 @@ class SentimentDataIntake():
         self.data_path = data_path
         
     def injest_tweets(self):
-        file = open(self.data_path)
-        csv_reader = csv.reader(file)
         rows = [] 
 
-        for row in csv_reader:
-            rows.append(row)
-        
-        file.close()
+        with open(self.data_path, 'r', encoding='utf-8', errors='replace') as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                # Process each row
+                rows.append(row)
+
         return rows
     
     def clean_data(self, tweets):
         nltk.download('stopwords')
         nltk.download('punkt')
-        stop_words, res_list = set(stopwords.words('english')), []
+        stop_words, res_list, lab_list = set(stopwords.words('english')), [], []
         
-        for tweet_object in tweets[1:]:
-            tweet, label = tweet_object[2], tweet_object[1]
+        for tweet_object in tweets:
+            tweet, label = tweet_object[5], tweet_object[0]
             clean_tweet = tweet.translate(str.maketrans('', '', string.punctuation))
             
             word_tokens = word_tokenize(clean_tweet)[1:]
@@ -37,6 +37,17 @@ class SentimentDataIntake():
         
         return res_list
     
+
+    def data_label_split(self, data):
+
+        data, labs = [], [] 
+        for entry in data:
+            data.append(entry[1])
+            labs.append(entry[0])
+            
+        return data, labs
+
+
     def train_test_split(self, clean_tweets):
         train_set, test_set = defaultdict(list), defaultdict(list)
         
