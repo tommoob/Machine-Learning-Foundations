@@ -10,7 +10,10 @@ class LogisticRegressionModel:
         
         self.coefficient = np.array(w).reshape(var_size, -1).T
         # (10, -1)
-        self.intercept = np.array(b).reshape(1, -1).T
+        if isinstance(b, np.ndarray):
+            self.intercept = np.array(b).reshape(1, -1).T
+        else:
+            self.intercept = b
         
     def logistic_fit(self, xs, ys, nepochs=10, learn_rate=0.001):
         
