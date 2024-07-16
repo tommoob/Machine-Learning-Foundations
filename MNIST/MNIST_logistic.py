@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 import sys
-from MNIST_data_intake import MNISTDataInjest
+from MNIST.MNIST_data_intake import MNISTDataInjest
 from logistic_regression_tob import LogisticRegressionModel
 import numpy as np
 from functools import partial
@@ -117,7 +117,7 @@ def find_highest_prob(probs):
             
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path', type=str, default="/home/thomasobrien/dev/src/Machine-Learning-Foundations/data/MNIST_data", help='what sort of augmentation')
+    parser.add_argument('--path', type=str, default="/home/thomas/dev/src/Machine-Learning-Foundations/data/MNIST_data", help='what sort of augmentation')
     opt = parser.parse_args()
     
     imgs, labs = defaultdict(partial(np.ndarray, 0)), defaultdict(partial(np.ndarray, 0))
