@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 from MNIST_image_dataset import ImageDataset
 from torch.utils.data import DataLoader
+from torchvision import transforms
 
 
 
@@ -24,13 +25,13 @@ def main():
     output_size = 10  
     batch_size = 64
     learning_rate = 0.001
-    num_epochs = 10
+    num_epochs = 40
     
     model = MnistCNN()
     #model = MNIST_hidden_layer(input_size, hidden_size, output_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
-    
+
     # Train
     train_dataset = ImageDataset(MNIST_data.images[train_image_string], MNIST_data.labels[train_label_string])
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)

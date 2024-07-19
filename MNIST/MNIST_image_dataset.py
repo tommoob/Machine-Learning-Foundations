@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+import torch
 
 
 class ImageDataset(Dataset):
@@ -10,6 +11,7 @@ class ImageDataset(Dataset):
         return len(self.images)
 
     def __getitem__(self, idx):
-        image = self.images[idx]
+        image = torch.from_numpy(self.images[idx])
+        image = image.unsqueeze(0)
         label = self.labels[idx]
         return image, label
