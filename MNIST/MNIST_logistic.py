@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 import sys
-from MNIST.MNIST_data_intake import MNISTDataInjest
+from MNIST_data_intake import MNISTDataInjest
 from logistic_regression_tob import LogisticRegressionModel
 import numpy as np
 from functools import partial

@@ -10,12 +10,18 @@ import torch.nn as nn
 import torch.optim as optim
 from MNIST_image_dataset import ImageDataset
 from torch.utils.data import DataLoader
-from torchvision import transforms
+import sys
+sys.path.append(os.path.join(os.getcwd(), "utils"))
+from utils.file_utils import file_utils
+import cv2
 
-
+file_tools = file_utils()
 
 test_image_string, test_label_string = "t10k-images-idx3-ubyte", 't10k-labels-idx1-ubyte'
 train_image_string, train_label_string = 'train-images-idx3-ubyte', 'train-labels-idx1-ubyte'
+
+results_dir = os.path.join(os.getcwd(), "data/results")
+save_errors = True
 
 
 def main():
@@ -25,7 +31,16 @@ def main():
     output_size = 10  
     batch_size = 64
     learning_rate = 0.001
-    num_epochs = 40
+    num_epochs = 1
+
+    model_save_dir = os.path.join(
+        results_dir, "models"
+    )
+    model_save_path = os.path.join(
+        model_save_dir, file_utils.get_rand_filename(root="model"), ".pt"
+        )
+    os.makedirs(model_save_dir, exist_ok=True)
+
     
     model = MnistCNN()
     #model = MNIST_hidden_layer(input_size, hidden_size, output_size).to(device)
@@ -54,14 +69,15 @@ def main():
 
     # Evaluate
 
+    torch.save(model, model_save_path)
     test_dataset = ImageDataset(MNIST_data.images[test_image_string], MNIST_data.labels[test_label_string])
-    test_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True)
 
     model.eval()
 
     with torch.no_grad():
-        correct = 0
-        total = 0 
+        correct = defaultdict(int)
+        total = defaultdict(int)
 
         for images, labels in test_dataloader:
 
@@ -71,11 +87,20 @@ def main():
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
 
-            total += labels.size(0)
-            correct += (predicted ==labels).sum().item()
-
-        print(f'Accuracy of the model on the test images: {100 * correct / total}%')
-
+            for ix, lab in enumerate(labels):
+                total[int(lab)] += 1
+                if predicted[ix] == lab:
+                    correct[int(lab)] += 1
+                elif save_errors:
+                    file_save_dir = os.path.join(results_dir, "data/results", 
+                                                 file_tools.get_rand_filename(
+                                                     f"falsely_predicted_as_{int(predicted[ix])}___"
+                                                     ), ".jpg")
+                    print(predicted[ix])
+                    img = images[ix].numpy()
+                    cv2.imwrite(file_save_dir, img)
+        for key in total:
+            print(f'Accuracy of the model to detect number: {key} in the test images is: {100 * correct[key] / total[key]}%')
 
 
 def get_data():
